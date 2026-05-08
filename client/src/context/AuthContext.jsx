@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import AuthContext from './auth-context'
 import api, { API_BASE_URL, clearAccessToken, configureAuthHandlers, setAccessToken } from '../utils/api'
 
 export function AuthProvider({ children }) {
+  const location = useLocation()
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
   const pendingRefreshRef = useRef(null)
+  const hasBootstrappedRef = useRef(false)
 
   const applySession = useCallback((session) => {
     setAccessToken(session.access_token)
@@ -40,6 +43,18 @@ export function AuthProvider({ children }) {
     let cancelled = false
 
     const bootstrapAuth = async () => {
+      if (hasBootstrappedRef.current) {
+        setLoading(false)
+        return
+      }
+
+      if (location.pathname === '/') {
+        setLoading(false)
+        return
+      }
+
+      hasBootstrappedRef.current = true
+
       try {
         if (!pendingRefreshRef.current) {
           pendingRefreshRef.current = refreshSession()
@@ -65,7 +80,7 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true
     }
-  }, [refreshSession, clearSession])
+  }, [location.pathname, refreshSession, clearSession])
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password })
