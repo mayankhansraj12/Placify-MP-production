@@ -1,0 +1,182 @@
+[
+  {
+    "company": "Google",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "ML Engineer", "Data Scientist"],
+    "interview_rounds": "Online Assessment → Phone Screen → 4-5 Onsite Rounds (Coding + System Design + Behavioral)",
+    "focus_areas": "DSA (medium-hard), system design, Googleyness & Leadership",
+    "avg_ctc_lpa": "30-45",
+    "tips": "Focus on LeetCode medium/hard problems. Practice writing clean code on a whiteboard. Emphasize collaborative problem-solving. Google values thought process over correct answers."
+  },
+  {
+    "company": "Microsoft",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer", "ML Engineer"],
+    "interview_rounds": "Online Assessment → 4-5 Rounds (Coding + Design + Behavioral with as appropriate)",
+    "focus_areas": "DSA, object-oriented design, system design for senior roles",
+    "avg_ctc_lpa": "25-42",
+    "tips": "Strong focus on data structures fundamentals. Practice explaining your approach before coding. Microsoft values clear communication and structured thinking. Expect OS and networking questions."
+  },
+  {
+    "company": "Amazon",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Backend Developer", "Data Analyst"],
+    "interview_rounds": "Online Assessment → Phone Screen → 4 Onsite Loops (Coding + System Design + Leadership Principles)",
+    "focus_areas": "Leadership Principles (critical), DSA, system design, scalability",
+    "avg_ctc_lpa": "28-40",
+    "tips": "Prepare STAR format stories for each of Amazon's 16 Leadership Principles. They're not optional — every round includes LP questions. Practice system design for distributed systems."
+  },
+  {
+    "company": "Meta (Facebook)",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Frontend Developer", "ML Engineer"],
+    "interview_rounds": "Phone Screen → 3-4 Onsite Rounds (Coding + System Design + Behavioral)",
+    "focus_areas": "Coding speed and accuracy, system design at scale, behavioral (Meta values)",
+    "avg_ctc_lpa": "35-50",
+    "tips": "Meta emphasizes coding speed — practice completing problems in 20 minutes. System design questions focus on social media scale (billions of users). Be ready to discuss impact of your past work."
+  },
+  {
+    "company": "Apple",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "ML Engineer", "Frontend Developer"],
+    "interview_rounds": "Phone Screen → 5-6 Onsite Rounds with different teams",
+    "focus_areas": "Domain-specific knowledge, coding, design thinking, attention to detail",
+    "avg_ctc_lpa": "30-45",
+    "tips": "Apple interviews are team-specific — research your target team beforehand. They value depth over breadth. Expect questions about user experience and product thinking alongside technical questions."
+  },
+  {
+    "company": "Flipkart",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Backend Developer", "Data Scientist"],
+    "interview_rounds": "Online Coding Round → Machine Coding Round → 2-3 Technical Interviews → HR",
+    "focus_areas": "DSA, machine coding (build a mini-project in 90 mins), system design",
+    "avg_ctc_lpa": "22-35",
+    "tips": "The machine coding round is unique to Flipkart — practice building small applications (parking lot, snake game) with clean OOP in 90 minutes. Strong focus on code quality and design patterns."
+  },
+  {
+    "company": "Goldman Sachs",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Data Analyst", "Backend Developer"],
+    "interview_rounds": "Online Test (Aptitude + Coding) → 2-3 Technical Rounds → HR",
+    "focus_areas": "DSA, aptitude, OOPS concepts, puzzles, database concepts",
+    "avg_ctc_lpa": "20-30",
+    "tips": "Goldman has a unique aptitude section with mathematical puzzles. Brush up on probability, permutations, and logical reasoning. They test Java/OOP concepts heavily. Know your database normalization."
+  },
+  {
+    "company": "Infosys",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer", "Data Analyst"],
+    "interview_rounds": "Online Test (Aptitude + Coding) → Technical Interview → HR Interview",
+    "focus_areas": "Aptitude, basic coding, DBMS, OS fundamentals, communication",
+    "avg_ctc_lpa": "6-10",
+    "tips": "Infosys InfyTQ platform offers early advantage for strong candidates. Focus on aptitude preparation and basic programming concepts. Communication skills matter — practice explaining technical concepts clearly."
+  },
+  {
+    "company": "TCS",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer"],
+    "interview_rounds": "TCS NQT (National Qualifier Test) → Technical Interview → MR/HR Interview",
+    "focus_areas": "Aptitude (verbal, quant, reasoning), basic programming, communication",
+    "avg_ctc_lpa": "4-8",
+    "tips": "TCS NQT score is crucial. Prepare for aptitude, verbal ability, and programming MCQs. The Digital role (higher CTC) requires stronger coding skills. Practice on TCS iON platform for familiarity."
+  },
+  {
+    "company": "Wipro",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer"],
+    "interview_rounds": "Online Assessment (Aptitude + Coding) → Technical Round → HR",
+    "focus_areas": "Aptitude, basic programming (C/Java/Python), essay writing",
+    "avg_ctc_lpa": "4-7",
+    "tips": "Wipro's Elite NLTH program offers higher packages. Essay writing is part of the assessment — practice writing on technology topics. Focus on core CS concepts rather than advanced DSA."
+  },
+  {
+    "company": "Cognizant",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Data Analyst", "Full-Stack Developer"],
+    "interview_rounds": "GenC Online Test → Technical Interview → HR Interview",
+    "focus_areas": "Aptitude, coding, SQL, basic CS fundamentals",
+    "avg_ctc_lpa": "4-9",
+    "tips": "Cognizant GenC Elevate and GenC Pro offer higher packages with tougher assessments. Practice SQL queries and basic programming. Strong communication skills can set you apart."
+  },
+  {
+    "company": "Deloitte",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Data Analyst", "Business Analyst"],
+    "interview_rounds": "Online Assessment → Group Discussion → Technical Interview → HR",
+    "focus_areas": "Aptitude, communication, basic tech, business awareness",
+    "avg_ctc_lpa": "7-12",
+    "tips": "Deloitte has a unique group discussion round. Practice articulating opinions confidently. They value consulting mindset — demonstrate structured problem-solving and business awareness."
+  },
+  {
+    "company": "Accenture",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer", "Data Analyst"],
+    "interview_rounds": "Cognitive + Technical Assessment → Coding Round → Communication Test → Interview",
+    "focus_areas": "Aptitude, coding basics, communication, adaptability",
+    "avg_ctc_lpa": "5-8",
+    "tips": "Accenture's communication assessment includes email writing and video response. Practice professional email writing. The coding round tests basic problem-solving — no advanced DSA needed."
+  },
+  {
+    "company": "Razorpay",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Backend Developer", "Full-Stack Developer", "Software Developer"],
+    "interview_rounds": "Online Coding → 2-3 Technical Rounds (Coding + System Design) → Culture Fit",
+    "focus_areas": "Strong DSA, system design for payments, databases, distributed systems",
+    "avg_ctc_lpa": "20-35",
+    "tips": "Razorpay focuses heavily on backend skills and system design for payment systems. Understand concepts like idempotency, event-driven architecture, and data consistency. Good knowledge of databases is essential."
+  },
+  {
+    "company": "Zomato",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Backend Developer", "Full-Stack Developer", "Data Scientist"],
+    "interview_rounds": "Online Coding → Machine Coding → 2-3 Technical Interviews → Hiring Manager",
+    "focus_areas": "DSA, machine coding, system design, product thinking",
+    "avg_ctc_lpa": "18-30",
+    "tips": "Zomato values product-minded developers. In system design, think about restaurant search, delivery routing, and real-time order tracking. Machine coding round: build a clean mini-project in 90 minutes."
+  },
+  {
+    "company": "PhonePe",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Backend Developer", "Software Developer", "ML Engineer"],
+    "interview_rounds": "Online Coding → Machine Coding → 2-3 Technical → Bar Raiser",
+    "focus_areas": "Java/Kotlin, system design for fintech, DSA, low-level design",
+    "avg_ctc_lpa": "20-32",
+    "tips": "PhonePe is Java-heavy. Practice low-level design (LLD) problems: design a parking lot, elevator, or payment system. They have a 'bar raiser' round focused on depth of knowledge."
+  },
+  {
+    "company": "Atlassian",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer"],
+    "interview_rounds": "Online Assessment → Values Interview → Technical (Coding + Design) → Hiring Manager",
+    "focus_areas": "Values-based interviewing, coding, system design, collaboration",
+    "avg_ctc_lpa": "30-50",
+    "tips": "Atlassian's values interview is critical — prepare specific stories around their 5 values (Open Company, Build with Heart, etc.). Technical rounds focus on practical problem-solving over trick questions."
+  },
+  {
+    "company": "Uber",
+    "tier": "Top-Tier",
+    "roles_hiring": ["Software Developer", "Backend Developer", "ML Engineer"],
+    "interview_rounds": "Phone Screen → 4-5 Onsite (Coding + System Design + Behavioral)",
+    "focus_areas": "DSA, system design (ride-sharing scale), strong coding skills",
+    "avg_ctc_lpa": "28-45",
+    "tips": "System design questions often relate to Uber's domain: ride matching, surge pricing, ETA calculation. Practice designing real-time location-based systems. Focus on trade-offs in your answers."
+  },
+  {
+    "company": "IBM",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Data Analyst", "ML Engineer"],
+    "interview_rounds": "Online Assessment → Technical Interview → HR Interview",
+    "focus_areas": "Coding basics, cloud computing, AI/ML awareness, communication",
+    "avg_ctc_lpa": "6-12",
+    "tips": "IBM values cloud and AI awareness. Familiarize yourself with IBM Cloud and Watson. The technical interview covers fundamentals — not heavy DSA. Show passion for emerging technologies."
+  },
+  {
+    "company": "Capgemini",
+    "tier": "Mid-Tier",
+    "roles_hiring": ["Software Developer", "Full-Stack Developer"],
+    "interview_rounds": "Game-based Assessment → Coding MCQ → Technical Interview → HR",
+    "focus_areas": "Aptitude, game-based reasoning, basic coding, communication",
+    "avg_ctc_lpa": "4-7",
+    "tips": "Capgemini uses a unique game-based psychometric assessment. Practice logical reasoning games. The coding section is MCQ-based, not full implementations. Strong English communication is valued."
+  }
+]

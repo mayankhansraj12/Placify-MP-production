@@ -1,0 +1,182 @@
+[
+  {
+    "tip": "Use strong action verbs to start each bullet point: Led, Developed, Implemented, Optimized, Designed, Architected, Reduced, Increased, Automated.",
+    "category": "action_verbs",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Quantify your impact with metrics: 'Reduced API latency by 40%' is far stronger than 'Improved performance'. Use numbers wherever possible.",
+    "category": "metrics",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Include a dedicated 'Technical Skills' section near the top of your resume. List programming languages, frameworks, databases, and tools with proficiency levels.",
+    "category": "sections",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Keep your resume to one page for entry-level positions. Recruiters spend an average of 6-7 seconds on initial screening.",
+    "category": "formatting",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Use a clean, ATS-friendly format: avoid tables, images, headers/footers, and multi-column layouts. ATS systems often can't parse these correctly.",
+    "category": "formatting",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "For ML Engineer roles, list specific model architectures (BERT, GPT, ResNet, LSTM) not just 'deep learning'. Mention frameworks: PyTorch, TensorFlow, scikit-learn.",
+    "category": "keywords",
+    "roles": ["ML Engineer", "Data Scientist"],
+    "impact": "high"
+  },
+  {
+    "tip": "Include a 'Projects' section with 2-3 substantial projects. For each: name, tech stack, what you built, and quantified impact or result.",
+    "category": "sections",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Mirror keywords from the job description in your resume. If the posting says 'React.js', use 'React.js' not just 'React'. ATS systems do exact matching.",
+    "category": "keywords",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "For Data Analyst roles, mention: SQL, Excel (advanced functions), Tableau/Power BI, Python (pandas, matplotlib), statistical analysis, A/B testing.",
+    "category": "keywords",
+    "roles": ["Data Analyst", "Data Scientist"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Include GitHub/portfolio links that are active and well-maintained. Recruiters will check them. Pin your best 4-6 repositories.",
+    "category": "links",
+    "roles": ["all"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Use the STAR format for project descriptions: Situation, Task, Action, Result. End with a measurable result whenever possible.",
+    "category": "content",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "For Full-Stack Developer roles, clearly separate frontend and backend skills. Mention: React/Angular/Vue, Node.js/Django/Flask, REST APIs, databases.",
+    "category": "keywords",
+    "roles": ["Full-Stack Developer", "Frontend Developer", "Backend Developer"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Add an 'Education' section with: degree, university name, graduation year, and CGPA/percentage if above 7.0/70%. Include relevant coursework.",
+    "category": "sections",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Avoid generic objective statements like 'Seeking a challenging position'. Instead, use a 2-line professional summary highlighting your key strengths and target role.",
+    "category": "content",
+    "roles": ["all"],
+    "impact": "medium"
+  },
+  {
+    "tip": "For Backend Developer roles, emphasize: API design (REST/GraphQL), database optimization, authentication, caching, message queues, microservices.",
+    "category": "keywords",
+    "roles": ["Backend Developer", "Software Developer"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Use consistent date formats throughout (e.g., 'Jan 2024 – Mar 2024'). List experiences in reverse chronological order.",
+    "category": "formatting",
+    "roles": ["all"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Remove personal details that aren't relevant: date of birth, marital status, photo, father's name. These aren't expected in modern resumes and waste space.",
+    "category": "content",
+    "roles": ["all"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Include certifications only if they're relevant and recognized: AWS Certified, Google Cloud Professional, Coursera specializations with verified certificates.",
+    "category": "sections",
+    "roles": ["all"],
+    "impact": "low"
+  },
+  {
+    "tip": "For competitive programming achievements, mention: platform ratings (Codeforces, LeetCode), contest rankings, number of problems solved. These are strong signals for DSA skills.",
+    "category": "achievements",
+    "roles": ["Software Developer", "Backend Developer"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Use standard section headings that ATS systems recognize: 'Experience', 'Education', 'Skills', 'Projects', 'Certifications'. Avoid creative names like 'My Journey'.",
+    "category": "formatting",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Tailor your resume for each application. A resume targeting a Data Scientist role should emphasize different projects than one targeting Frontend Developer.",
+    "category": "strategy",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "If you have internship experience, list it under 'Experience' with detailed bullet points. Even short internships with impact metrics are valuable.",
+    "category": "content",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Proofread for spelling and grammar errors. A single typo can cause rejection — use tools like Grammarly for a final check.",
+    "category": "quality",
+    "roles": ["all"],
+    "impact": "high"
+  },
+  {
+    "tip": "Save your resume as a PDF to preserve formatting across devices. Name the file professionally: 'FirstName_LastName_Resume.pdf'.",
+    "category": "formatting",
+    "roles": ["all"],
+    "impact": "medium"
+  },
+  {
+    "tip": "For Frontend Developer roles, mention responsive design, accessibility (WCAG), performance optimization (Lighthouse score), and cross-browser compatibility.",
+    "category": "keywords",
+    "roles": ["Frontend Developer", "Full-Stack Developer"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Include relevant soft skills demonstrated through experiences, not listed as buzzwords. Show 'Led a team of 5' instead of listing 'leadership' as a skill.",
+    "category": "content",
+    "roles": ["all"],
+    "impact": "medium"
+  },
+  {
+    "tip": "If you contributed to open source projects, highlight this prominently. Mention the project name, your contribution, and its impact (PRs merged, issues resolved).",
+    "category": "achievements",
+    "roles": ["Software Developer", "Backend Developer", "Full-Stack Developer"],
+    "impact": "medium"
+  },
+  {
+    "tip": "For your strongest project, include a 'deployed at' link or demo URL. A live, working project is worth more than a description.",
+    "category": "links",
+    "roles": ["Full-Stack Developer", "Frontend Developer"],
+    "impact": "medium"
+  },
+  {
+    "tip": "Use a professional email address (firstname.lastname@gmail.com). Avoid nicknames or numbers that look unprofessional.",
+    "category": "contact",
+    "roles": ["all"],
+    "impact": "low"
+  },
+  {
+    "tip": "Add your LinkedIn profile URL (customized, not the default long URL). Ensure your LinkedIn matches your resume content.",
+    "category": "links",
+    "roles": ["all"],
+    "impact": "medium"
+  }
+]

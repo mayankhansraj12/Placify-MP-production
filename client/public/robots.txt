@@ -1,0 +1,19 @@
+# Placify AI robots.txt
+
+User-agent: *
+Allow: /
+
+# Private app and authentication routes should not be crawled.
+Disallow: /api/
+Disallow: /auth/
+Disallow: /auth/callback
+Disallow: /login
+Disallow: /register
+Disallow: /dashboard
+Disallow: /analyze
+Disallow: /enhance
+Disallow: /coach
+Disallow: /interview
+Disallow: /results
+
+Sitemap: https://placifyai.dev/sitemap.xml

@@ -1,0 +1,18 @@
+{
+  "name": "Placify AI",
+  "short_name": "Placify AI",
+  "description": "AI placement readiness platform for resume analysis, career coaching and mock interview practice.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "499x499",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

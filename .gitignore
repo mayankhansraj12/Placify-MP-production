@@ -1,0 +1,65 @@
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+.npm/
+.pnpm-store/
+
+# Build artifacts
+dist/
+build/
+client/dist/
+client/dist-ssr/
+
+# Deployment metadata
+.vercel/
+client/.vercel/
+
+# Databases and generated outputs
+*.db
+*.sqlite
+*.sqlite3
+server/data/*.db
+test_results.json
+test_10_results.json
+server/test_results.json
+server/test_10_results.json
+server/test_results.txt
+server/tests/artifacts/*.json
+
+# Logs
+*.log
+logs/
+server/server_logs.txt
+server/server-smoke.*.log
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Dev/temp files
+friend_repo/
+compare.py
+implementation_plan.md

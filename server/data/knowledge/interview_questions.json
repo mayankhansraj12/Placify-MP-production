@@ -1,0 +1,359 @@
+[
+  {
+    "question": "Explain the difference between a Process and a Thread.",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["dsa_score"],
+    "difficulty": "medium",
+    "tip": "Cover: memory sharing, context switching cost, isolation, use cases. Mention Python GIL if relevant."
+  },
+  {
+    "question": "What is the time complexity of searching in a balanced BST vs an unbalanced BST?",
+    "role": ["Software Developer", "Backend Developer", "Full-Stack Developer"],
+    "skills": ["dsa_score"],
+    "difficulty": "easy",
+    "tip": "Balanced = O(log n), unbalanced = O(n). Mention AVL/Red-Black trees for self-balancing."
+  },
+  {
+    "question": "Design a URL shortener like bit.ly.",
+    "role": ["Backend Developer", "Full-Stack Developer", "Software Developer"],
+    "skills": ["dsa_score", "database_score"],
+    "difficulty": "hard",
+    "tip": "Discuss: base62 encoding, hash collisions, 301 vs 302 redirects, caching, read-heavy system, DB choice."
+  },
+  {
+    "question": "What are ACID properties in databases? Give a real-world example.",
+    "role": ["Backend Developer", "Data Analyst", "Software Developer"],
+    "skills": ["database_score"],
+    "difficulty": "medium",
+    "tip": "Atomicity (bank transfer), Consistency (constraints), Isolation (concurrent reads), Durability (crash recovery)."
+  },
+  {
+    "question": "Explain the difference between SQL and NoSQL databases. When would you choose each?",
+    "role": ["Backend Developer", "Full-Stack Developer", "Data Analyst"],
+    "skills": ["database_score"],
+    "difficulty": "easy",
+    "tip": "SQL: structured, ACID, joins. NoSQL: flexible schema, horizontal scaling. Use cases: e-commerce (SQL) vs social feed (NoSQL)."
+  },
+  {
+    "question": "What is the difference between REST and GraphQL?",
+    "role": ["Backend Developer", "Full-Stack Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "medium",
+    "tip": "REST: resource-based, multiple endpoints, over/under-fetching. GraphQL: single endpoint, client specifies shape, schema-typed."
+  },
+  {
+    "question": "Implement a function to detect a cycle in a linked list.",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["dsa_score"],
+    "difficulty": "medium",
+    "tip": "Floyd's Tortoise and Hare algorithm. O(n) time, O(1) space. Follow-up: find the start of the cycle."
+  },
+  {
+    "question": "What is dynamic programming? Solve the coin change problem.",
+    "role": ["Software Developer", "ML Engineer"],
+    "skills": ["dsa_score", "coding_problems"],
+    "difficulty": "hard",
+    "tip": "Optimal substructure + overlapping subproblems. Bottom-up DP with dp[amount] = min coins. Time: O(amount × coins)."
+  },
+  {
+    "question": "Explain how a HashMap works internally. What happens during a collision?",
+    "role": ["Software Developer", "Backend Developer", "Full-Stack Developer"],
+    "skills": ["dsa_score"],
+    "difficulty": "medium",
+    "tip": "Hash function → bucket index. Collision handling: chaining (linked list) or open addressing. Load factor and rehashing."
+  },
+  {
+    "question": "What is the difference between TCP and UDP? When would you use each?",
+    "role": ["Software Developer", "Backend Developer", "Network Engineer"],
+    "skills": ["dsa_score"],
+    "difficulty": "easy",
+    "tip": "TCP: reliable, ordered, connection-oriented (HTTP, file transfer). UDP: fast, connectionless (video streaming, gaming, DNS)."
+  },
+  {
+    "question": "Design a rate limiter for an API endpoint.",
+    "role": ["Backend Developer", "Software Developer"],
+    "skills": ["dsa_score", "web_dev_score"],
+    "difficulty": "hard",
+    "tip": "Algorithms: Token bucket, sliding window, fixed window. Discuss: distributed systems, Redis-based, HTTP 429 responses."
+  },
+  {
+    "question": "What is the virtual DOM and how does React use it?",
+    "role": ["Frontend Developer", "Full-Stack Developer"],
+    "skills": ["web_dev_score", "javascript_score"],
+    "difficulty": "medium",
+    "tip": "In-memory representation of real DOM. Diffing algorithm compares old vs new. Batched updates for performance. Fiber architecture."
+  },
+  {
+    "question": "Explain closures in JavaScript with an example.",
+    "role": ["Frontend Developer", "Full-Stack Developer", "Software Developer"],
+    "skills": ["javascript_score"],
+    "difficulty": "medium",
+    "tip": "Function retains access to its lexical scope even after outer function returns. Use cases: data privacy, partial application, callbacks."
+  },
+  {
+    "question": "What is the difference between var, let, and const in JavaScript?",
+    "role": ["Frontend Developer", "Full-Stack Developer"],
+    "skills": ["javascript_score"],
+    "difficulty": "easy",
+    "tip": "var: function-scoped, hoisted. let: block-scoped, TDZ. const: block-scoped, immutable binding (not value). Use const by default."
+  },
+  {
+    "question": "Explain the event loop in Node.js. What is the callback queue?",
+    "role": ["Backend Developer", "Full-Stack Developer"],
+    "skills": ["javascript_score", "web_dev_score"],
+    "difficulty": "hard",
+    "tip": "Call stack → Web APIs → Callback queue → Event loop checks if stack is empty → pushes callbacks. Microtasks (Promises) run before macrotasks."
+  },
+  {
+    "question": "What is the difference between supervised and unsupervised learning?",
+    "role": ["ML Engineer", "Data Scientist", "Data Analyst"],
+    "skills": ["ml_score"],
+    "difficulty": "easy",
+    "tip": "Supervised: labeled data, predicts target (regression/classification). Unsupervised: no labels, finds patterns (clustering, dimensionality reduction)."
+  },
+  {
+    "question": "Explain the bias-variance tradeoff.",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "medium",
+    "tip": "High bias = underfitting (too simple). High variance = overfitting (too complex). Sweet spot minimizes total error. Cross-validation helps."
+  },
+  {
+    "question": "What is gradient descent? Explain batch, stochastic, and mini-batch variants.",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "medium",
+    "tip": "Iteratively updates weights to minimize loss. Batch: all data per step (stable, slow). SGD: 1 sample (noisy, fast). Mini-batch: best of both."
+  },
+  {
+    "question": "How would you handle missing values in a dataset?",
+    "role": ["Data Analyst", "Data Scientist", "ML Engineer"],
+    "skills": ["ml_score", "python_score"],
+    "difficulty": "easy",
+    "tip": "Options: drop rows, mean/median/mode imputation, KNN imputation, MICE. Choice depends on: amount missing, MCAR/MAR/MNAR pattern."
+  },
+  {
+    "question": "Explain precision, recall, and F1-score. When would you prioritize recall over precision?",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "medium",
+    "tip": "Precision: TP/(TP+FP). Recall: TP/(TP+FN). F1: harmonic mean. Prioritize recall: disease detection (missing a case is worse than false alarm)."
+  },
+  {
+    "question": "What is overfitting and how do you prevent it?",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "easy",
+    "tip": "Model memorizes training data. Prevention: cross-validation, regularization (L1/L2), dropout, early stopping, more data, simpler model."
+  },
+  {
+    "question": "Explain the difference between classification and regression with examples.",
+    "role": ["ML Engineer", "Data Analyst", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "easy",
+    "tip": "Classification: discrete output (spam/not spam). Regression: continuous output (house price). Same algorithms can sometimes do both (SVM, neural nets)."
+  },
+  {
+    "question": "Write a Python function to reverse a linked list.",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["dsa_score", "python_score", "coding_problems"],
+    "difficulty": "medium",
+    "tip": "Iterative: three pointers (prev, curr, next). Recursive: reverse rest, then fix pointers. Time O(n), Space O(1) iterative / O(n) recursive."
+  },
+  {
+    "question": "What are Python decorators? Write a custom decorator.",
+    "role": ["Backend Developer", "Software Developer", "ML Engineer"],
+    "skills": ["python_score"],
+    "difficulty": "medium",
+    "tip": "Functions that wrap other functions. Use @functools.wraps. Common uses: logging, timing, authentication, caching (@lru_cache)."
+  },
+  {
+    "question": "Explain list comprehension vs generator expression in Python.",
+    "role": ["Software Developer", "ML Engineer", "Data Analyst"],
+    "skills": ["python_score"],
+    "difficulty": "easy",
+    "tip": "List comp: [x for x in range(n)] creates full list in memory. Generator: (x for x in range(n)) yields lazily. Use generators for large datasets."
+  },
+  {
+    "question": "What is the GIL in Python? How does it affect multithreading?",
+    "role": ["Backend Developer", "Software Developer"],
+    "skills": ["python_score"],
+    "difficulty": "hard",
+    "tip": "Global Interpreter Lock: only one thread executes Python bytecode at a time. CPU-bound → use multiprocessing. IO-bound → threading is fine."
+  },
+  {
+    "question": "Explain the difference between deep copy and shallow copy.",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["python_score"],
+    "difficulty": "easy",
+    "tip": "Shallow: copies references (nested objects shared). Deep: recursively copies all objects. Use copy.deepcopy() in Python. Matters for mutable nested structures."
+  },
+  {
+    "question": "What is CORS and why is it important?",
+    "role": ["Frontend Developer", "Full-Stack Developer", "Backend Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "medium",
+    "tip": "Cross-Origin Resource Sharing. Browser security: prevents scripts from making requests to different domains. Server sets Access-Control-Allow-Origin headers."
+  },
+  {
+    "question": "Explain CSS Flexbox vs CSS Grid. When would you use each?",
+    "role": ["Frontend Developer", "Full-Stack Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "easy",
+    "tip": "Flexbox: 1D layout (row OR column). Grid: 2D layout (rows AND columns). Flexbox for components, Grid for page layouts. They work well together."
+  },
+  {
+    "question": "What are Web Workers and when would you use them?",
+    "role": ["Frontend Developer", "Full-Stack Developer"],
+    "skills": ["javascript_score", "web_dev_score"],
+    "difficulty": "hard",
+    "tip": "Run scripts in background threads. No DOM access. Use for: heavy computation, image processing, data parsing. Communication via postMessage."
+  },
+  {
+    "question": "Design a chat application like WhatsApp. Focus on the architecture.",
+    "role": ["Backend Developer", "Full-Stack Developer", "Software Developer"],
+    "skills": ["dsa_score", "web_dev_score", "database_score"],
+    "difficulty": "hard",
+    "tip": "WebSockets for real-time. Message queue (Kafka). Read receipts. Group chats. Media storage (S3). Encryption (E2E). Database: messages (Cassandra), users (PostgreSQL)."
+  },
+  {
+    "question": "What is Docker and how is it different from a virtual machine?",
+    "role": ["Backend Developer", "Software Developer", "Full-Stack Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "medium",
+    "tip": "Docker: OS-level virtualization, shares kernel, lightweight, fast startup. VM: hardware-level, full OS, heavy. Docker for apps, VMs for OS-level isolation."
+  },
+  {
+    "question": "Explain JWT authentication. What are its pros and cons?",
+    "role": ["Backend Developer", "Full-Stack Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "medium",
+    "tip": "JSON Web Token: Header.Payload.Signature. Stateless, scalable. Cons: can't revoke easily, token size, must handle expiration. Use refresh tokens pattern."
+  },
+  {
+    "question": "What is a Random Forest? How does it differ from a single Decision Tree?",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "medium",
+    "tip": "Ensemble of decision trees with bagging. Each tree sees random subset of features/data. Reduces variance/overfitting. Majority vote for classification."
+  },
+  {
+    "question": "Write SQL to find the second highest salary from an employees table.",
+    "role": ["Data Analyst", "Backend Developer", "Software Developer"],
+    "skills": ["database_score"],
+    "difficulty": "medium",
+    "tip": "SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees). Or: DENSE_RANK() window function approach."
+  },
+  {
+    "question": "What is normalization in databases? Explain 1NF, 2NF, 3NF.",
+    "role": ["Backend Developer", "Data Analyst"],
+    "skills": ["database_score"],
+    "difficulty": "medium",
+    "tip": "1NF: atomic columns. 2NF: no partial dependencies on composite key. 3NF: no transitive dependencies. Goal: reduce redundancy, prevent anomalies."
+  },
+  {
+    "question": "Explain the concept of indexing in databases. What are B-Trees?",
+    "role": ["Backend Developer", "Data Analyst", "Software Developer"],
+    "skills": ["database_score"],
+    "difficulty": "hard",
+    "tip": "Index = data structure for fast lookups. B-Tree: balanced, multi-way tree, optimized for disk I/O. Clustered vs non-clustered. Trade-off: faster reads, slower writes."
+  },
+  {
+    "question": "What is CI/CD? Describe a typical pipeline.",
+    "role": ["Software Developer", "Backend Developer", "Full-Stack Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "easy",
+    "tip": "CI: automated build + test on every commit. CD: automated deployment. Pipeline: commit → lint → test → build → deploy to staging → deploy to prod."
+  },
+  {
+    "question": "How would you optimize a slow SQL query?",
+    "role": ["Backend Developer", "Data Analyst"],
+    "skills": ["database_score"],
+    "difficulty": "hard",
+    "tip": "EXPLAIN ANALYZE, add indexes on WHERE/JOIN columns, avoid SELECT *, use pagination, denormalize for read-heavy, query caching, partitioning."
+  },
+  {
+    "question": "Explain the difference between Promise, async/await, and callbacks in JavaScript.",
+    "role": ["Frontend Developer", "Full-Stack Developer"],
+    "skills": ["javascript_score"],
+    "difficulty": "medium",
+    "tip": "Callbacks: nested (callback hell). Promises: chainable .then(). async/await: syntactic sugar over Promises, looks synchronous. Error handling: try/catch with await."
+  },
+  {
+    "question": "What is the CAP theorem?",
+    "role": ["Backend Developer", "Software Developer"],
+    "skills": ["database_score", "dsa_score"],
+    "difficulty": "hard",
+    "tip": "Consistency, Availability, Partition tolerance — pick 2. In practice, P is inevitable, so choose CP (strong consistency) or AP (high availability). Examples: MongoDB (CP), DynamoDB (AP)."
+  },
+  {
+    "question": "Write a function to find the longest common subsequence of two strings.",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["dsa_score", "coding_problems"],
+    "difficulty": "hard",
+    "tip": "Classic DP problem. 2D table dp[i][j]. If match: dp[i-1][j-1]+1. Else: max(dp[i-1][j], dp[i][j-1]). Time: O(m×n). Space: can optimize to O(min(m,n))."
+  },
+  {
+    "question": "What are React hooks? Explain useState, useEffect, and useContext.",
+    "role": ["Frontend Developer", "Full-Stack Developer"],
+    "skills": ["javascript_score", "web_dev_score"],
+    "difficulty": "medium",
+    "tip": "Hooks let you use state in functional components. useState: local state. useEffect: side effects (API calls, subscriptions). useContext: avoid prop drilling."
+  },
+  {
+    "question": "Explain cross-validation. Why is it better than a simple train/test split?",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "medium",
+    "tip": "K-fold: split into k parts, train on k-1, test on 1, rotate. Better variance estimate. Stratified for imbalanced data. LOOCV for small datasets."
+  },
+  {
+    "question": "What is a closure in Python? How is it different from a class?",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["python_score"],
+    "difficulty": "medium",
+    "tip": "Closure: inner function captures variables from enclosing scope. Lighter than a class for simple state. Use when you need a function factory or callback with state."
+  },
+  {
+    "question": "Design a notification system that supports multiple channels (email, SMS, push).",
+    "role": ["Backend Developer", "Software Developer"],
+    "skills": ["dsa_score", "web_dev_score"],
+    "difficulty": "hard",
+    "tip": "Strategy pattern for channels. Message queue (RabbitMQ/SQS) for async delivery. Priority and throttling. User preference storage. Fallback channels. Delivery tracking."
+  },
+  {
+    "question": "What is XSS? How do you prevent it?",
+    "role": ["Frontend Developer", "Full-Stack Developer", "Backend Developer"],
+    "skills": ["web_dev_score"],
+    "difficulty": "medium",
+    "tip": "Cross-Site Scripting: injecting malicious scripts into web pages. Prevention: input sanitization, output encoding, Content-Security-Policy headers, HttpOnly cookies."
+  },
+  {
+    "question": "Explain the MapReduce paradigm with an example.",
+    "role": ["Data Scientist", "ML Engineer", "Backend Developer"],
+    "skills": ["dsa_score", "python_score"],
+    "difficulty": "medium",
+    "tip": "Map: transform each element independently (parallel). Reduce: aggregate results. Example: word count — map emits (word, 1), reduce sums counts per word."
+  },
+  {
+    "question": "What is feature engineering? Give examples for a recommendation system.",
+    "role": ["ML Engineer", "Data Scientist"],
+    "skills": ["ml_score"],
+    "difficulty": "medium",
+    "tip": "Creating/transforming input features to improve model performance. Examples: user-item interaction matrix, time-since-last-purchase, category embeddings, TF-IDF on reviews."
+  },
+  {
+    "question": "Explain Big O notation. Compare O(1), O(log n), O(n), O(n log n), O(n²).",
+    "role": ["Software Developer", "Backend Developer", "Full-Stack Developer"],
+    "skills": ["dsa_score"],
+    "difficulty": "easy",
+    "tip": "Describes worst-case growth rate. O(1): constant (hash lookup). O(log n): binary search. O(n): linear scan. O(n log n): merge sort. O(n²): bubble sort."
+  },
+  {
+    "question": "What is the difference between a stack and a queue? Name real-world uses.",
+    "role": ["Software Developer", "Backend Developer"],
+    "skills": ["dsa_score"],
+    "difficulty": "easy",
+    "tip": "Stack: LIFO (undo, call stack, DFS). Queue: FIFO (task scheduling, BFS, printer queue). Deque: both ends. Priority queue: ordered by priority."
+  }
+]

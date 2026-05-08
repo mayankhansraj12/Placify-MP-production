@@ -1,0 +1,272 @@
+[
+  {
+    "title": "LeetCode 75 Study Plan",
+    "url": "https://leetcode.com/study-plan/leetcode-75/",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "beginner",
+    "duration": "3 weeks",
+    "type": "practice",
+    "description": "Curated 75 must-do LeetCode problems covering arrays, two pointers, trees, graphs, and dynamic programming. Ideal starting point for placement prep."
+  },
+  {
+    "title": "NeetCode 150 Roadmap",
+    "url": "https://neetcode.io/roadmap",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "intermediate",
+    "duration": "6 weeks",
+    "type": "practice",
+    "description": "Structured roadmap of 150 LeetCode problems organized by pattern. Includes video explanations for each problem. Best for systematic DSA prep."
+  },
+  {
+    "title": "Striver's A2Z DSA Sheet",
+    "url": "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "beginner",
+    "duration": "8 weeks",
+    "type": "practice",
+    "description": "Comprehensive 450+ problem sheet covering every DSA topic from basics to advanced. Includes video solutions. Very popular among Indian placement aspirants."
+  },
+  {
+    "title": "Full Stack Open (University of Helsinki)",
+    "url": "https://fullstackopen.com",
+    "skills": ["javascript_score", "web_dev_score"],
+    "level": "intermediate",
+    "duration": "6 weeks",
+    "type": "course",
+    "description": "Free university-grade course covering React, Node.js, MongoDB, GraphQL, TypeScript, and CI/CD. Hands-on projects with peer review."
+  },
+  {
+    "title": "The Odin Project - Full Stack JavaScript",
+    "url": "https://www.theodinproject.com/paths/full-stack-javascript",
+    "skills": ["javascript_score", "web_dev_score"],
+    "level": "beginner",
+    "duration": "12 weeks",
+    "type": "course",
+    "description": "Project-based full stack curriculum. Build real projects: calculator, library app, weather app, todo list. Strong community support."
+  },
+  {
+    "title": "CS50x - Introduction to Computer Science (Harvard)",
+    "url": "https://cs50.harvard.edu/x/",
+    "skills": ["dsa_score", "python_score"],
+    "level": "beginner",
+    "duration": "12 weeks",
+    "type": "course",
+    "description": "Harvard's famous intro CS course. Covers C, Python, SQL, web development. Excellent for building strong fundamentals from scratch."
+  },
+  {
+    "title": "Python for Everybody (University of Michigan)",
+    "url": "https://www.py4e.com/",
+    "skills": ["python_score"],
+    "level": "beginner",
+    "duration": "4 weeks",
+    "type": "course",
+    "description": "Gentle introduction to Python covering variables, loops, functions, files, and web scraping. Perfect for absolute beginners."
+  },
+  {
+    "title": "Automate the Boring Stuff with Python",
+    "url": "https://automatetheboringstuff.com/",
+    "skills": ["python_score"],
+    "level": "beginner",
+    "duration": "4 weeks",
+    "type": "book",
+    "description": "Free online book teaching Python through practical projects: web scraping, Excel automation, file management. Great for building confidence."
+  },
+  {
+    "title": "Real Python Tutorials",
+    "url": "https://realpython.com/",
+    "skills": ["python_score"],
+    "level": "intermediate",
+    "duration": "ongoing",
+    "type": "tutorials",
+    "description": "High-quality Python tutorials on advanced topics: decorators, generators, context managers, testing, packaging. Good for leveling up."
+  },
+  {
+    "title": "JavaScript.info - The Modern JavaScript Tutorial",
+    "url": "https://javascript.info/",
+    "skills": ["javascript_score"],
+    "level": "beginner",
+    "duration": "4 weeks",
+    "type": "tutorial",
+    "description": "Comprehensive JavaScript tutorial from basics to advanced. Covers the language core, browser APIs, and network requests. Well-structured with exercises."
+  },
+  {
+    "title": "React Official Tutorial (react.dev)",
+    "url": "https://react.dev/learn",
+    "skills": ["javascript_score", "web_dev_score"],
+    "level": "beginner",
+    "duration": "2 weeks",
+    "type": "tutorial",
+    "description": "Official React documentation with interactive examples. Covers components, hooks, state management, and effects. The definitive learning guide."
+  },
+  {
+    "title": "FreeCodeCamp - Machine Learning with Python",
+    "url": "https://www.freecodecamp.org/learn/machine-learning-with-python/",
+    "skills": ["ml_score", "python_score"],
+    "level": "beginner",
+    "duration": "6 weeks",
+    "type": "course",
+    "description": "Free interactive course covering TensorFlow, neural networks, NLP, and reinforcement learning with hands-on projects and certification."
+  },
+  {
+    "title": "Andrew Ng's Machine Learning Specialization",
+    "url": "https://www.coursera.org/specializations/machine-learning-introduction",
+    "skills": ["ml_score"],
+    "level": "beginner",
+    "duration": "8 weeks",
+    "type": "course",
+    "description": "The gold standard ML course. Covers supervised/unsupervised learning, recommender systems, and reinforcement learning. Free to audit."
+  },
+  {
+    "title": "Fast.ai - Practical Deep Learning",
+    "url": "https://course.fast.ai/",
+    "skills": ["ml_score", "python_score"],
+    "level": "intermediate",
+    "duration": "6 weeks",
+    "type": "course",
+    "description": "Top-down approach to deep learning. Build working models first, then understand theory. Covers vision, NLP, tabular data, and deployment."
+  },
+  {
+    "title": "Kaggle Learn - Intro to ML",
+    "url": "https://www.kaggle.com/learn/intro-to-machine-learning",
+    "skills": ["ml_score", "python_score"],
+    "level": "beginner",
+    "duration": "1 week",
+    "type": "tutorial",
+    "description": "Quick hands-on introduction to ML with Kaggle notebooks. Covers decision trees, random forests, and model validation. Free with exercises."
+  },
+  {
+    "title": "SQLBolt - Interactive SQL Lessons",
+    "url": "https://sqlbolt.com/",
+    "skills": ["database_score"],
+    "level": "beginner",
+    "duration": "1 week",
+    "type": "tutorial",
+    "description": "Interactive SQL tutorial with exercises. Covers SELECT, JOINs, aggregations, subqueries. Perfect for building SQL fundamentals quickly."
+  },
+  {
+    "title": "Mode SQL Tutorial",
+    "url": "https://mode.com/sql-tutorial/",
+    "skills": ["database_score"],
+    "level": "intermediate",
+    "duration": "2 weeks",
+    "type": "tutorial",
+    "description": "Advanced SQL tutorial covering window functions, CTEs, pivoting, and performance optimization. Includes real-world analytics examples."
+  },
+  {
+    "title": "Git & GitHub Crash Course (freeCodeCamp)",
+    "url": "https://www.youtube.com/watch?v=RGOj5yH7evk",
+    "skills": ["web_dev_score"],
+    "level": "beginner",
+    "duration": "1 hour",
+    "type": "video",
+    "description": "Complete Git and GitHub tutorial covering init, commits, branches, merging, pull requests, and collaboration workflows."
+  },
+  {
+    "title": "System Design Primer (GitHub)",
+    "url": "https://github.com/donnemartin/system-design-primer",
+    "skills": ["dsa_score", "web_dev_score"],
+    "level": "advanced",
+    "duration": "4 weeks",
+    "type": "reference",
+    "description": "Comprehensive system design study guide. Covers scalability, load balancing, caching, database sharding, and popular system design questions."
+  },
+  {
+    "title": "Pandas Documentation Tutorial",
+    "url": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/",
+    "skills": ["python_score", "ml_score"],
+    "level": "beginner",
+    "duration": "1 week",
+    "type": "tutorial",
+    "description": "Official Pandas tutorial covering DataFrames, selecting data, groupby, merging, and time series. Essential for data analysis roles."
+  },
+  {
+    "title": "Scikit-learn User Guide",
+    "url": "https://scikit-learn.org/stable/user_guide.html",
+    "skills": ["ml_score", "python_score"],
+    "level": "intermediate",
+    "duration": "3 weeks",
+    "type": "reference",
+    "description": "Official scikit-learn documentation with examples for classification, regression, clustering, preprocessing, and model evaluation."
+  },
+  {
+    "title": "MDN Web Docs - HTML, CSS, JavaScript",
+    "url": "https://developer.mozilla.org/en-US/docs/Learn",
+    "skills": ["web_dev_score", "javascript_score"],
+    "level": "beginner",
+    "duration": "6 weeks",
+    "type": "reference",
+    "description": "The definitive web development reference. Structured learning path from HTML basics to advanced JavaScript. Maintained by Mozilla."
+  },
+  {
+    "title": "freeCodeCamp - Responsive Web Design",
+    "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
+    "skills": ["web_dev_score"],
+    "level": "beginner",
+    "duration": "4 weeks",
+    "type": "course",
+    "description": "Free certification covering HTML, CSS, Flexbox, Grid, accessibility, and responsive design. Build 20 projects to earn certification."
+  },
+  {
+    "title": "InterviewBit - Coding Practice",
+    "url": "https://www.interviewbit.com/practice/",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "intermediate",
+    "duration": "4 weeks",
+    "type": "practice",
+    "description": "Structured coding practice organized by topic and difficulty. Includes timed tests that simulate real interview conditions. Popular in India."
+  },
+  {
+    "title": "GeeksforGeeks - Placement Preparation",
+    "url": "https://www.geeksforgeeks.org/placements-gq/",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "beginner",
+    "duration": "ongoing",
+    "type": "reference",
+    "description": "Comprehensive placement preparation portal with company-specific questions, aptitude tests, interview experiences, and DSA articles."
+  },
+  {
+    "title": "HackerRank - Interview Preparation Kit",
+    "url": "https://www.hackerrank.com/interview/interview-preparation-kit",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "intermediate",
+    "duration": "3 weeks",
+    "type": "practice",
+    "description": "Curated set of challenges covering arrays, dictionaries, sorting, graphs, DP, and more. Used by many companies for screening rounds."
+  },
+  {
+    "title": "Eloquent JavaScript (free book)",
+    "url": "https://eloquentjavascript.net/",
+    "skills": ["javascript_score"],
+    "level": "intermediate",
+    "duration": "4 weeks",
+    "type": "book",
+    "description": "Deep dive into JavaScript covering higher-order functions, modules, asynchronous programming, Node.js, and building a game project."
+  },
+  {
+    "title": "roadmap.sh - Developer Roadmaps",
+    "url": "https://roadmap.sh/",
+    "skills": ["web_dev_score", "dsa_score"],
+    "level": "beginner",
+    "duration": "ongoing",
+    "type": "reference",
+    "description": "Visual roadmaps for frontend, backend, DevOps, and more. Helps you see the big picture and plan your learning path systematically."
+  },
+  {
+    "title": "Codeforces - Competitive Programming",
+    "url": "https://codeforces.com/",
+    "skills": ["dsa_score", "coding_problems"],
+    "level": "advanced",
+    "duration": "ongoing",
+    "type": "practice",
+    "description": "Competitive programming platform with regular contests. Great for building speed and problem-solving under pressure. Rating system for tracking progress."
+  },
+  {
+    "title": "Data Science Handbook (GitHub)",
+    "url": "https://jakevdp.github.io/PythonDataScienceHandbook/",
+    "skills": ["ml_score", "python_score"],
+    "level": "intermediate",
+    "duration": "4 weeks",
+    "type": "book",
+    "description": "Free online book covering NumPy, Pandas, Matplotlib, and Scikit-learn with Jupyter notebooks. Excellent for hands-on data science learning."
+  }
+]
