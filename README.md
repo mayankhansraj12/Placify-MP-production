@@ -95,9 +95,16 @@ Create a Render Web Service from this repo:
 ```text
 Root Directory: server
 Language: Python
+Python Version: 3.12
 Build Command: pip install -r requirements.txt
 Start Command: python main.py
 Health Check Path: /api/health
+```
+
+The backend includes `server/.python-version` with `3.12`. If Render still uses a newer Python version, add this Render environment variable:
+
+```env
+PYTHON_VERSION=3.12.10
 ```
 
 Set Render environment variables:
