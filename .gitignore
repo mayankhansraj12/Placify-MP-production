@@ -37,9 +37,11 @@ client/.vercel/
 
 # Databases and generated outputs
 *.db
+*.db-*
 *.sqlite
 *.sqlite3
 server/data/*.db
+server/data/*.db-*
 test_results.json
 test_10_results.json
 server/test_results.json

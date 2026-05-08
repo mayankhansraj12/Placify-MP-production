@@ -10,7 +10,7 @@ A proper tool-calling agent with:
 import json
 import logging
 import re
-from datetime import datetime
+import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -18,10 +18,10 @@ from pydantic import BaseModel, Field
 
 try:
     from ..auth import get_current_user
-    from ..database import get_db
+    from ..database import get_collection, to_iso, utcnow
 except ImportError:
     from auth import get_current_user
-    from database import get_db
+    from database import get_collection, to_iso, utcnow
 
 try:
     from services import llm_service
@@ -42,33 +42,14 @@ logger = logging.getLogger("placify.coach")
 # ═══════════════════════════════════════════════════════════════════════════
 
 def _ensure_coach_tables():
-    """Create coach tables if they don't exist."""
-    conn = get_db()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS coach_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            role TEXT NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    """)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS coach_goals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            goal TEXT NOT NULL,
-            status TEXT DEFAULT 'active',
-            target_date TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            completed_at TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    """)
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_coach_messages_user_id ON coach_messages(user_id)")
-    conn.commit()
-    conn.close()
+    """MongoDB indexes are created during application startup."""
+    return None
+
+
+def _ensure_dict(value):
+    if isinstance(value, str):
+        return json.loads(value)
+    return value or {}
 
 
 # Initialize tables on import
@@ -98,20 +79,15 @@ TOOL_DESCRIPTIONS = "\n".join(f"- {name}: {desc}" for name, desc in TOOLS.items(
 
 def _tool_get_latest_analysis(user_id: str) -> str:
     """Fetch the user's most recent analysis from the DB."""
-    conn = get_db()
-    row = conn.execute(
-        "SELECT results, created_at FROM analyses WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
-        (user_id,)
-    ).fetchone()
-    conn.close()
+    row = get_collection("analyses").find_one({"user_id": user_id}, sort=[("created_at", -1)])
 
     if not row:
         return "No analysis found. The student hasn't uploaded a resume yet."
 
     try:
-        results = json.loads(row["results"])
+        results = _ensure_dict(row.get("results", {}))
         summary_parts = [
-            f"Analysis from: {row['created_at']}",
+            f"Analysis from: {to_iso(row.get('created_at'))}",
             f"Predicted role: {results.get('predicted_role', 'N/A')}",
             f"Predicted tier: {results.get('predicted_tier', 'N/A')}",
             f"Industry readiness: {results.get('industry_readiness', 0)}%",
@@ -131,18 +107,18 @@ def _tool_get_latest_analysis(user_id: str) -> str:
             summary_parts.append(f"Expected salary: {sal.get('expected', 0)} LPA")
 
         return "\n".join(summary_parts)
-    except (json.JSONDecodeError, KeyError):
+    except (json.JSONDecodeError, KeyError, TypeError):
         return "Analysis found but could not parse results."
 
 
 def _tool_get_analysis_history(user_id: str) -> str:
     """Get all past analyses to show progress."""
-    conn = get_db()
-    rows = conn.execute(
-        "SELECT results, created_at FROM analyses WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
-        (user_id,)
-    ).fetchall()
-    conn.close()
+    rows = list(
+        get_collection("analyses")
+        .find({"user_id": user_id})
+        .sort("created_at", -1)
+        .limit(10)
+    )
 
     if not rows:
         return "No analysis history. The student hasn't done any analyses yet."
@@ -150,15 +126,15 @@ def _tool_get_analysis_history(user_id: str) -> str:
     summaries = []
     for i, row in enumerate(rows):
         try:
-            r = json.loads(row["results"])
+            r = _ensure_dict(row.get("results", {}))
             summaries.append(
-                f"#{i+1} ({row['created_at']}): "
+                f"#{i+1} ({to_iso(row.get('created_at'))}): "
                 f"Role={r.get('predicted_role','?')}, "
                 f"Readiness={r.get('industry_readiness',0)}%, "
                 f"Resume={r.get('resume_strength',0)}%"
             )
-        except (json.JSONDecodeError, KeyError):
-            summaries.append(f"#{i+1} ({row['created_at']}): [parse error]")
+        except (json.JSONDecodeError, KeyError, TypeError):
+            summaries.append(f"#{i+1} ({to_iso(row.get('created_at'))}): [parse error]")
 
     return f"Found {len(rows)} analyses:\n" + "\n".join(summaries)
 
@@ -225,34 +201,37 @@ def _tool_search_questions(query: str) -> str:
 
 def _tool_set_goal(user_id: str, goal: str, target_date: str = "") -> str:
     """Set a new goal for the student."""
-    conn = get_db()
     _ensure_coach_tables()
-    conn.execute(
-        "INSERT INTO coach_goals (user_id, goal, target_date) VALUES (?, ?, ?)",
-        (user_id, goal, target_date or None)
-    )
-    conn.commit()
-    conn.close()
+    goal_id = str(uuid.uuid4())
+    get_collection("coach_goals").insert_one({
+        "_id": goal_id,
+        "id": goal_id,
+        "user_id": user_id,
+        "goal": goal,
+        "status": "active",
+        "target_date": target_date or None,
+        "created_at": utcnow(),
+        "completed_at": None,
+    })
     return f"Goal set: '{goal}'" + (f" (target: {target_date})" if target_date else "")
 
 
 def _tool_get_goals(user_id: str) -> str:
     """Get active goals."""
-    conn = get_db()
     _ensure_coach_tables()
-    rows = conn.execute(
-        "SELECT id, goal, target_date, created_at FROM coach_goals WHERE user_id = ? AND status = 'active' ORDER BY created_at DESC",
-        (user_id,)
-    ).fetchall()
-    conn.close()
+    rows = list(
+        get_collection("coach_goals")
+        .find({"user_id": user_id, "status": "active"})
+        .sort("created_at", -1)
+    )
 
     if not rows:
         return "No active goals set yet."
 
     lines = [f"Active goals ({len(rows)}):"]
     for row in rows:
-        line = f"  [{row['id']}] {row['goal']}"
-        if row["target_date"]:
+        line = f"  [{row.get('id') or row['_id']}] {row['goal']}"
+        if row.get("target_date"):
             line += f" (by {row['target_date']})"
         lines.append(line)
     return "\n".join(lines)
@@ -260,15 +239,12 @@ def _tool_get_goals(user_id: str) -> str:
 
 def _tool_complete_goal(user_id: str, goal_id: str) -> str:
     """Mark a goal as completed."""
-    conn = get_db()
     _ensure_coach_tables()
-    conn.execute(
-        "UPDATE coach_goals SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?",
-        (goal_id, user_id)
+    get_collection("coach_goals").update_one(
+        {"_id": goal_id, "user_id": user_id},
+        {"$set": {"status": "completed", "completed_at": utcnow()}}
     )
-    conn.commit()
-    conn.close()
-    return f"Goal #{goal_id} marked as completed! 🎉"
+    return f"Goal #{goal_id} marked as completed!"
 
 
 def _execute_tool(tool_name: str, user_id: str, args: str) -> str:
@@ -404,22 +380,36 @@ async def coach_chat(req: ChatMessage, current_user: dict = Depends(get_current_
     _ensure_coach_tables()
 
     # Load history from DB
-    conn = get_db()
-    rows = conn.execute(
-        "SELECT role, content FROM coach_messages WHERE user_id = ? ORDER BY created_at DESC LIMIT 12",
-        (user_id,)
-    ).fetchall()
+    rows = list(
+        get_collection("coach_messages")
+        .find({"user_id": user_id})
+        .sort("created_at", -1)
+        .limit(12)
+    )
     history = [{"role": r["role"], "content": r["content"]} for r in reversed(rows)]
 
     # Run agent loop
     reply = await _agent_loop(user_id, req.message, history)
 
     # Save to DB
-    conn = get_db()
-    conn.execute("INSERT INTO coach_messages (user_id, role, content) VALUES (?, 'user', ?)", (user_id, req.message))
-    conn.execute("INSERT INTO coach_messages (user_id, role, content) VALUES (?, 'coach', ?)", (user_id, reply))
-    conn.commit()
-    conn.close()
+    messages = get_collection("coach_messages")
+    now = utcnow()
+    messages.insert_many([
+        {
+            "_id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "role": "user",
+            "content": req.message,
+            "created_at": now,
+        },
+        {
+            "_id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "role": "coach",
+            "content": reply,
+            "created_at": utcnow(),
+        },
+    ])
 
     # Generate suggestions
     suggestions = await _generate_suggestions(req.message, reply)
@@ -433,23 +423,20 @@ async def get_history(current_user: dict = Depends(get_current_user)):
     """Get persistent conversation history."""
     user_id = str(current_user["id"])
     _ensure_coach_tables()
-    conn = get_db()
-    rows = conn.execute(
-        "SELECT role, content, created_at FROM coach_messages WHERE user_id = ? ORDER BY created_at ASC LIMIT 50",
-        (user_id,)
-    ).fetchall()
-    conn.close()
-    return {"messages": [{"role": r["role"], "text": r["content"], "time": r["created_at"]} for r in rows]}
+    rows = list(
+        get_collection("coach_messages")
+        .find({"user_id": user_id})
+        .sort("created_at", 1)
+        .limit(50)
+    )
+    return {"messages": [{"role": r["role"], "text": r["content"], "time": to_iso(r.get("created_at"))} for r in rows]}
 
 
 @router.delete("/history")
 async def clear_history(current_user: dict = Depends(get_current_user)):
     """Clear conversation history from DB."""
     user_id = str(current_user["id"])
-    conn = get_db()
-    conn.execute("DELETE FROM coach_messages WHERE user_id = ?", (user_id,))
-    conn.commit()
-    conn.close()
+    get_collection("coach_messages").delete_many({"user_id": user_id})
     return {"message": "Conversation history cleared"}
 
 
@@ -458,13 +445,22 @@ async def list_goals(current_user: dict = Depends(get_current_user)):
     """Get the user's goals."""
     user_id = str(current_user["id"])
     _ensure_coach_tables()
-    conn = get_db()
-    rows = conn.execute(
-        "SELECT id, goal, status, target_date, created_at, completed_at FROM coach_goals WHERE user_id = ? ORDER BY created_at DESC",
-        (user_id,)
-    ).fetchall()
-    conn.close()
-    return {"goals": [dict(r) for r in rows]}
+    rows = list(
+        get_collection("coach_goals")
+        .find({"user_id": user_id})
+        .sort("created_at", -1)
+    )
+    goals = []
+    for row in rows:
+        goals.append({
+            "id": row.get("id") or str(row["_id"]),
+            "goal": row.get("goal"),
+            "status": row.get("status", "active"),
+            "target_date": row.get("target_date"),
+            "created_at": to_iso(row.get("created_at")),
+            "completed_at": to_iso(row.get("completed_at")),
+        })
+    return {"goals": goals}
 
 
 @router.get("/status")

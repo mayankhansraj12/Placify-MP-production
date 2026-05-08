@@ -34,3 +34,13 @@ def test_register_login_me_and_logout_flow():
 
     me_after_logout = client.get("/api/auth/me")
     assert me_after_logout.status_code == 401
+
+
+def test_refresh_clears_invalid_cookie():
+    client = TestClient(app)
+    client.cookies.set("placify_token", "invalid-token", domain="testserver.local", path="/")
+
+    res = client.post("/api/auth/refresh")
+
+    assert res.status_code == 401
+    assert "placify_token" not in client.cookies

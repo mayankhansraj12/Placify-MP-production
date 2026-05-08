@@ -1,7 +1,8 @@
 """
-Placify AI — Analysis Routes
-Handles resume upload, analysis, and history retrieval.
-Enhanced with LLM-powered ATS feedback (F1) and results narrative (F4).
+Placify AI - Analysis routes.
+
+Handles resume upload, prediction, AI-enriched feedback, and MongoDB-backed
+analysis history.
 """
 
 import json
@@ -12,25 +13,24 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 try:
     from ..auth import get_current_user
-    from ..database import get_db
+    from ..database import get_collection, to_iso, utcnow
     from ..ml.predictor import predict
     from ..utils.resume_parser import parse_resume
 except ImportError:
     from auth import get_current_user
-    from database import get_db
+    from database import get_collection, to_iso, utcnow
     from ml.predictor import predict
     from utils.resume_parser import parse_resume
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 logger = logging.getLogger("placify.analysis")
 
-# ── LLM service (imported once, used throughout) ───────────────────────────
 try:
     from services import llm_service
 except ImportError:
     llm_service = None
 
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
 @router.post("")
@@ -42,8 +42,6 @@ async def create_analysis(
     current_user: dict = Depends(get_current_user),
 ):
     """Upload resume and generate placement prediction."""
-
-    # ── Validate file ───────────────────────────────────────────────────────
     if not resume.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
@@ -54,31 +52,25 @@ async def create_analysis(
         raise HTTPException(status_code=400, detail="Uploaded file is not a valid PDF")
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(status_code=400, detail="File size must be under 5MB")
-
     if len(content) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty")
 
-    # ── Validate inputs ─────────────────────────────────────────────────────
     if not (0 <= aptitude_score <= 100):
         raise HTTPException(status_code=400, detail="Aptitude score must be between 0 and 100")
-
     if not (1 <= communication_score <= 5):
         raise HTTPException(status_code=400, detail="Communication score must be between 1 and 5")
-
     if not (0 <= coding_problems_solved <= 5000):
         raise HTTPException(status_code=400, detail="Coding problems solved must be between 0 and 5000")
 
-    # ── Parse resume ────────────────────────────────────────────────────────
     try:
         resume_features = await parse_resume(content)
     except ValueError as e:
         logger.warning("resume_parse_validation_error user_id=%s detail=%s", current_user["id"], str(e))
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as exc:
+    except Exception:
         logger.exception("resume_parse_unexpected_error user_id=%s", current_user["id"])
         raise HTTPException(status_code=500, detail="Failed to process the resume. Please try a different file.")
 
-    # ── Build feature dict ──────────────────────────────────────────────────
     features = {
         **resume_features,
         "aptitude_score": aptitude_score,
@@ -86,20 +78,18 @@ async def create_analysis(
         "coding_problems_solved": coding_problems_solved,
     }
 
-    # ── Run prediction ──────────────────────────────────────────────────────
     try:
         results = predict(features)
     except Exception:
         logger.exception("prediction_error user_id=%s", current_user["id"])
         raise HTTPException(status_code=500, detail="Prediction failed. Please try again later.")
 
-    # ── F1: LLM-enhanced ATS feedback ────────────────────────────────────────
     if llm_service and llm_service.is_available():
         try:
             enhanced_ats = await _generate_ats_feedback(
                 resume_text=resume_features.get("_raw_text", ""),
                 predicted_role=results.get("predicted_role", ""),
-                current_ats=results.get("ats_feedback", [])
+                current_ats=results.get("ats_feedback", []),
             )
             if enhanced_ats:
                 results["ats_feedback_enhanced"] = enhanced_ats
@@ -108,7 +98,6 @@ async def create_analysis(
         except Exception as e:
             logger.debug("ats_llm_skipped error=%s", str(e)[:100])
 
-    # ── F4: AI-generated results narrative ───────────────────────────────────
     if llm_service and llm_service.is_available():
         try:
             narrative = await _generate_results_narrative(results)
@@ -119,116 +108,73 @@ async def create_analysis(
         except Exception as e:
             logger.debug("narrative_llm_skipped error=%s", str(e)[:100])
 
-    # ── F2: LLM-personalized skill study plans ──────────────────────────────
     if llm_service and llm_service.is_available():
         try:
             results["skill_gaps"] = await _generate_skill_plans(
                 skill_gaps=results.get("skill_gaps", []),
-                predicted_role=results.get("predicted_role", "Software Developer")
+                predicted_role=results.get("predicted_role", "Software Developer"),
             )
         except Exception as e:
             logger.debug("skill_plans_llm_skipped error=%s", str(e)[:100])
 
-    # ── Evaluate Peer Percentile using Real Database ────────────────────────
-    conn = get_db()
-    try:
-        my_readiness = results.get("industry_readiness", 0)
-    
-        row = conn.execute(
-            """
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN COALESCE(industry_readiness, CAST(json_extract(results, '$.industry_readiness') AS INTEGER)) < ? THEN 1 ELSE 0 END) as below
-            FROM analyses
-            """,
-            (my_readiness,)
-        ).fetchone()
-    
-        total_users = row["total"] or 0
-        below_users = row["below"] or 0
-    
-        # Calculate real percentile (+1 to include current execution)
-        real_percentile = int((below_users / (total_users + 1)) * 100) if total_users > 0 else 99
-        results["peer_percentile"] = real_percentile
+    analyses_collection = get_collection("analyses")
+    my_readiness = results.get("industry_readiness", 0)
+    total_users = analyses_collection.count_documents({})
+    below_users = analyses_collection.count_documents({"industry_readiness": {"$lt": my_readiness}})
+    results["peer_percentile"] = int((below_users / (total_users + 1)) * 100) if total_users > 0 else 99
 
-        # ── Strip private data before persistence ────────────────────────
-        results.pop("_raw_text", None)
+    results.pop("_raw_text", None)
 
-        # ── Save to database ────────────────────────────────────────────────────
-        analysis_id = str(uuid.uuid4())
-        input_data = {
-            "resume_filename": resume.filename,
-            "aptitude_score": aptitude_score,
-            "communication_score": communication_score,
-            "coding_problems_solved": coding_problems_solved,
-            "extracted_features": {k: v for k, v in features.items() if k != "_raw_text"},
-        }
+    analysis_id = str(uuid.uuid4())
+    input_data = {
+        "resume_filename": resume.filename,
+        "aptitude_score": aptitude_score,
+        "communication_score": communication_score,
+        "coding_problems_solved": coding_problems_solved,
+        "extracted_features": {k: v for k, v in features.items() if k != "_raw_text"},
+    }
 
-        conn.execute(
-            """
-            INSERT INTO analyses (
-                id, user_id, resume_filename, input_data, results,
-                predicted_role, predicted_tier, industry_readiness,
-                overall_confidence, salary_expected
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                analysis_id,
-                current_user["id"],
-                resume.filename,
-                json.dumps(input_data),
-                json.dumps(results),
-                results.get("predicted_role"),
-                results.get("predicted_tier"),
-                results.get("industry_readiness"),
-                results.get("overall_confidence"),
-                results.get("salary_range", {}).get("expected"),
-            )
-        )
-        conn.commit()
-    finally:
-        conn.close()
-    logger.info("analysis_created analysis_id=%s user_id=%s", analysis_id, current_user["id"])
-
-    return {
+    analyses_collection.insert_one({
+        "_id": analysis_id,
         "id": analysis_id,
+        "user_id": current_user["id"],
+        "created_at": utcnow(),
+        "resume_filename": resume.filename,
         "input_data": input_data,
         "results": results,
-    }
+        "predicted_role": results.get("predicted_role"),
+        "predicted_tier": results.get("predicted_tier"),
+        "industry_readiness": results.get("industry_readiness"),
+        "overall_confidence": results.get("overall_confidence"),
+        "salary_expected": results.get("salary_range", {}).get("expected"),
+    })
+
+    logger.info("analysis_created analysis_id=%s user_id=%s", analysis_id, current_user["id"])
+    return {"id": analysis_id, "input_data": input_data, "results": results}
 
 
 @router.get("/history")
 def get_history(current_user: dict = Depends(get_current_user)):
     """Get all past analyses for the current user."""
-    conn = get_db()
-    rows = conn.execute(
-        """
-        SELECT
-            id, created_at, resume_filename, results,
-            predicted_role, predicted_tier, salary_expected,
-            overall_confidence, industry_readiness
-        FROM analyses
-        WHERE user_id = ?
-        ORDER BY created_at DESC
-        """,
-        (current_user["id"],)
-    ).fetchall()
-    conn.close()
+    rows = list(
+        get_collection("analyses")
+        .find({"user_id": current_user["id"]})
+        .sort("created_at", -1)
+    )
     logger.info("analysis_history_read user_id=%s count=%s", current_user["id"], len(rows))
 
     analyses = []
     for row in rows:
-        results = json.loads(row["results"])
+        results = _ensure_dict(row.get("results", {}))
         analyses.append({
-            "id": row["id"],
-            "created_at": row["created_at"],
-            "resume_filename": row["resume_filename"],
-            "predicted_role": row["predicted_role"] or results.get("predicted_role", "N/A"),
-            "predicted_tier": row["predicted_tier"] or results.get("predicted_tier", "N/A"),
-            "salary_expected": row["salary_expected"] or results.get("salary_range", {}).get("expected", 0),
-            "overall_confidence": row["overall_confidence"] or results.get("overall_confidence", 0),
-            "industry_readiness": row["industry_readiness"] or results.get("industry_readiness", 0),
+            "id": row.get("id") or str(row["_id"]),
+            "created_at": to_iso(row.get("created_at")),
+            "resume_filename": row.get("resume_filename"),
+            "predicted_role": row.get("predicted_role") or results.get("predicted_role", "N/A"),
+            "predicted_tier": row.get("predicted_tier") or results.get("predicted_tier", "N/A"),
+            "salary_expected": row.get("salary_expected") or results.get("salary_range", {}).get("expected", 0),
+            "overall_confidence": row.get("overall_confidence") or results.get("overall_confidence", 0),
+            "industry_readiness": row.get("industry_readiness") or results.get("industry_readiness", 0),
             "resume_strength": results.get("resume_strength", 0),
         })
 
@@ -238,34 +184,28 @@ def get_history(current_user: dict = Depends(get_current_user)):
 @router.get("/{analysis_id}")
 def get_analysis(analysis_id: str, current_user: dict = Depends(get_current_user)):
     """Get a single analysis by ID."""
-    conn = get_db()
-    row = conn.execute(
-        "SELECT id, created_at, resume_filename, input_data, results FROM analyses WHERE id = ? AND user_id = ?",
-        (analysis_id, current_user["id"])
-    ).fetchone()
-    conn.close()
-
+    row = get_collection("analyses").find_one({"_id": analysis_id, "user_id": current_user["id"]})
     if not row:
         raise HTTPException(status_code=404, detail="Analysis not found")
-    logger.info("analysis_read analysis_id=%s user_id=%s", analysis_id, current_user["id"])
 
+    logger.info("analysis_read analysis_id=%s user_id=%s", analysis_id, current_user["id"])
     return {
-        "id": row["id"],
-        "created_at": row["created_at"],
-        "resume_filename": row["resume_filename"],
-        "input_data": json.loads(row["input_data"]),
-        "results": json.loads(row["results"]),
+        "id": row.get("id") or str(row["_id"]),
+        "created_at": to_iso(row.get("created_at")),
+        "resume_filename": row.get("resume_filename"),
+        "input_data": _ensure_dict(row.get("input_data", {})),
+        "results": _ensure_dict(row.get("results", {})),
     }
 
 
-# ── LLM Helper Functions (F1, F2, F4) ────────────────────────────────────────
+def _ensure_dict(value):
+    if isinstance(value, str):
+        return json.loads(value)
+    return value or {}
 
-async def _generate_ats_feedback(resume_text: str, predicted_role: str,
-                                  current_ats: list) -> list | None:
-    """
-    F1: Use LLM to generate deep, contextual ATS resume feedback.
-    Returns None if LLM is unavailable (caller keeps rule-based feedback).
-    """
+
+async def _generate_ats_feedback(resume_text: str, predicted_role: str, current_ats: list) -> list | None:
+    """Use LLM to generate deep, contextual ATS resume feedback."""
     if not resume_text or len(resume_text.strip()) < 100:
         return None
     if not llm_service or not llm_service.is_available():
@@ -287,7 +227,7 @@ Return a JSON object with:
 Focus on: keyword optimization, impact quantification, section structure, and role-specific terminology.
 Do NOT give generic advice. Reference specific lines or sections from this resume.
 Use Markdown principles inside text values where helpful: **bold** key terms, use short bullets, and never wrap the response in code fences.""",
-            system="You are an expert ATS resume reviewer at a Fortune 500 company. Be specific and actionable."
+            system="You are an expert ATS resume reviewer at a Fortune 500 company. Be specific and actionable.",
         )
         if result and "suggestions" in result:
             return result["suggestions"]
@@ -298,21 +238,17 @@ Use Markdown principles inside text values where helpful: **bold** key terms, us
 
 
 async def _generate_results_narrative(results: dict) -> str | None:
-    """
-    F4: Use LLM to generate a human-readable career readiness summary.
-    Returns None if LLM is unavailable (Results page simply skips this section).
-    """
+    """Use LLM to generate a human-readable career readiness summary."""
     if not llm_service or not llm_service.is_available():
         return None
 
     try:
-        # Build a concise data summary for the prompt
         weak_skills = [g["skill"] for g in results.get("skill_gaps", []) if g.get("status") == "weak"]
         strong_skills = [g["skill"] for g in results.get("skill_gaps", []) if g.get("status") == "strong"]
         domain_scores = results.get("domain_scores", {})
         top_domains = sorted(domain_scores.items(), key=lambda x: -x[1])[:3]
 
-        narrative = await llm_service.generate(
+        return await llm_service.generate(
             prompt=f"""Write a Markdown career readiness summary for an engineering student:
 
 - Best-fit role: {results.get('predicted_role', 'N/A')} ({results.get('role_confidence', 0)}% confidence)
@@ -322,7 +258,7 @@ async def _generate_results_narrative(results: dict) -> str | None:
 - Resume strength: {results.get('resume_strength', 0)}%
 - Strongest domains: {', '.join(f'{d[0]} ({d[1]}/100)' for d in top_domains)}
 - Strong skills: {', '.join(strong_skills) or 'None identified'}
-- Weak skills needing work: {', '.join(weak_skills) or 'None — well-rounded'}
+- Weak skills needing work: {', '.join(weak_skills) or 'None - well-rounded'}
 - FAANG probability: {results.get('faang_probability', 0)}%
 
 Use this Markdown structure:
@@ -335,10 +271,9 @@ Identify the 1-2 most important gaps to address.
 ### This Week
 Give 2 concrete, specific next steps as bullet points.
 
-Tone: Encouraging mentor, not corporate. Like a senior who's been through placements giving advice. Keep it under 260 words. Do not use code fences or raw HTML.""",
-            system="You are a placement advisor at an Indian engineering college. Be warm, specific, and practical."
+Tone: Encouraging mentor, not corporate. Keep it under 260 words. Do not use code fences or raw HTML.""",
+            system="You are a placement advisor at an Indian engineering college. Be warm, specific, and practical.",
         )
-        return narrative
     except Exception as e:
         logger.debug("narrative_llm_error: %s", str(e)[:100])
 
@@ -346,27 +281,21 @@ Tone: Encouraging mentor, not corporate. Like a senior who's been through placem
 
 
 async def _generate_skill_plans(skill_gaps: list, predicted_role: str) -> list:
-    """
-    F2: Use LLM to generate personalized study plans for weak/moderate skills.
-    Combines RAG-fetched resources (already attached) with LLM personalization.
-    Returns the skill_gaps list with 'study_plan' appended to weak/moderate gaps.
-    """
+    """Use LLM to generate personalized study plans for weak/moderate skills."""
     if not llm_service or not llm_service.is_available():
         return skill_gaps
 
-    # Only generate plans for the top 3 weakest skills to avoid rate limits
     weak_gaps = [g for g in skill_gaps if g.get("status") in ("weak", "moderate")][:3]
     if not weak_gaps:
         return skill_gaps
 
     for gap in weak_gaps:
         try:
-            # Build resource context from RAG (if available)
             resource_text = ""
             if gap.get("matched_resources"):
                 resources = gap["matched_resources"][:3]
                 resource_text = "\nAvailable resources:\n" + "\n".join(
-                    f"- {r['title']} ({r.get('duration', 'self-paced')}, {r.get('level', '')}) — {r.get('url', '')}"
+                    f"- {r['title']} ({r.get('duration', 'self-paced')}, {r.get('level', '')}) - {r.get('url', '')}"
                     for r in resources
                 )
 
@@ -381,17 +310,12 @@ Provide a practical 2-week plan in 4-5 Markdown bullet points.
 Each bullet: "Week X, Days Y-Z: [specific task]".
 Use ONLY the resources listed above if available. Be specific, not generic.
 Keep the total response under 140 words. Do not use code fences or raw HTML.""",
-                system="You are a placement prep coach for Indian engineering students. Be specific and actionable."
+                system="You are a placement prep coach for Indian engineering students. Be specific and actionable.",
             )
             if plan and plan.strip():
-                gap["study_plan"] = _parse_study_plan(plan)
+                gap["study_plan"] = plan.strip()
                 logger.debug("study_plan generated for %s", gap["skill"])
         except Exception as e:
             logger.debug("study_plan_error skill=%s error=%s", gap["skill"], str(e)[:100])
 
     return skill_gaps
-
-
-def _parse_study_plan(plan: str) -> str:
-    """Preserve the LLM's Markdown so the UI can render it faithfully."""
-    return plan.strip()

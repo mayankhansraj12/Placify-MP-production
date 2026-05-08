@@ -13,6 +13,10 @@ nltk==3.8.1
 pytest==8.1.1
 pytest-asyncio==0.23.6
 python-dotenv==1.0.1
+setuptools==80.9.0
+pymongo==4.8.0
+dnspython==2.8.0
+mongomock==4.1.2
 
 # Gen AI & RAG (optional — app works without them)
 # Primary: Azure OpenAI (student credit)

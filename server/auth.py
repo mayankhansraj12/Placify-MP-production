@@ -1,29 +1,33 @@
 """
-Placify AI - Authentication Module
-JWT-based authentication with register, login, and user retrieval.
+Placify AI - Authentication module.
+
+Supports password auth plus Google/GitHub OAuth. User data is stored in
+MongoDB Atlas through the database module.
 """
 
+import logging
 import os
 import re
 import uuid
-import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from urllib.parse import urlencode
 
 import bcrypt
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
+from authlib.integrations.starlette_client import OAuth
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from pymongo.errors import DuplicateKeyError
 from pydantic import BaseModel, Field, field_validator
-from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from starlette.responses import RedirectResponse
 
 try:
-    from .database import get_db
+    from .database import get_collection, utcnow
 except ImportError:
-    from database import get_db
+    from database import get_collection, utcnow
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 logger = logging.getLogger("placify.auth")
@@ -31,18 +35,18 @@ logger = logging.getLogger("placify.auth")
 SECRET_KEY = os.getenv("PLACIFY_SECRET_KEY")
 if not SECRET_KEY:
     raise RuntimeError("PLACIFY_SECRET_KEY environment variable is required.")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 EMAIL_PATTERN = re.compile(r"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$", re.IGNORECASE)
 COOKIE_NAME = "placify_token"
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").strip().lower() in {"1", "true", "yes", "on"}
-COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax").lower()
+COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax").strip().lower()
 if COOKIE_SAMESITE not in {"lax", "strict", "none"}:
     COOKIE_SAMESITE = "lax"
 ALLOW_COOKIE_AUTH = os.getenv("ALLOW_COOKIE_AUTH", "false").strip().lower() in {"1", "true", "yes", "on"}
-
-# ── Google OAuth Setup ────────────────────────────────────────────────────────
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+
 config_data = {
     "GOOGLE_CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID", ""),
     "GOOGLE_CLIENT_SECRET": os.getenv("GOOGLE_CLIENT_SECRET", ""),
@@ -52,11 +56,9 @@ config_data = {
 starlette_config = Config(environ=config_data)
 oauth = OAuth(starlette_config)
 oauth.register(
-    name='google',
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
+    name="google",
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
 )
 oauth.register(
     name="github",
@@ -65,6 +67,8 @@ oauth.register(
     api_base_url="https://api.github.com/",
     client_kwargs={"scope": "read:user user:email"},
 )
+
+VALID_AUTH_METHODS = {"password", "google", "github"}
 
 
 def oauth_error_redirect(message: str) -> RedirectResponse:
@@ -77,7 +81,6 @@ def oauth_callback_url(request: Request, provider: str, route_name: str) -> str:
 
 
 def normalize_email(value: str) -> str:
-    """Normalize and validate an email address."""
     email = value.strip().lower()
     if not EMAIL_PATTERN.fullmatch(email):
         raise ValueError("Enter a valid email address")
@@ -85,12 +88,10 @@ def normalize_email(value: str) -> str:
 
 
 def hash_password(password: str) -> str:
-    """Hash a password using bcrypt directly for Python 3.14 compatibility."""
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password: str, password_hash: str) -> bool:
-    """Verify a plaintext password against a bcrypt hash."""
     try:
         return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
     except ValueError:
@@ -153,9 +154,6 @@ def create_token(user_id: str, auth_method: str = "password") -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-VALID_AUTH_METHODS = {"password", "google", "github"}
-
-
 def infer_auth_methods(password_hash: str | None) -> list[str]:
     methods: list[str] = []
     if password_hash and not password_hash.startswith("!oauth-"):
@@ -167,31 +165,33 @@ def infer_auth_methods(password_hash: str | None) -> list[str]:
     return methods
 
 
-def link_auth_method(conn, user_id: str, method: str) -> None:
+def link_auth_method(user_id: str, method: str) -> None:
     if method not in VALID_AUTH_METHODS:
         return
-    conn.execute(
-        "INSERT OR IGNORE INTO user_auth_methods (user_id, method) VALUES (?, ?)",
-        (user_id, method),
+    get_collection("users").update_one(
+        {"_id": user_id},
+        {"$addToSet": {"auth_methods": method}, "$set": {"updated_at": utcnow()}},
     )
 
 
-def get_auth_methods(conn, user_id: str, password_hash: str | None, current_method: str = "password") -> list[str]:
-    rows = conn.execute(
-        "SELECT method FROM user_auth_methods WHERE user_id = ? ORDER BY created_at, method",
-        (user_id,),
-    ).fetchall()
-    methods = [row["method"] for row in rows if row["method"] in VALID_AUTH_METHODS]
-
-    for method in infer_auth_methods(password_hash):
+def get_auth_methods(user: dict, current_method: str = "password") -> list[str]:
+    methods = [method for method in user.get("auth_methods", []) if method in VALID_AUTH_METHODS]
+    for method in infer_auth_methods(user.get("password_hash")):
         if method not in methods:
             methods.append(method)
-            link_auth_method(conn, user_id, method)
-
     if current_method in VALID_AUTH_METHODS and current_method not in methods:
         methods.append(current_method)
-
     return methods or [current_method]
+
+
+def public_user(user: dict, current_method: str = "password") -> UserResponse:
+    return UserResponse(
+        id=str(user["_id"]),
+        name=user.get("name") or user.get("email", "").split("@")[0],
+        email=user["email"],
+        current_auth_method=current_method,
+        auth_methods=get_auth_methods(user, current_method),
+    )
 
 
 def set_auth_cookie(response: Response, token: str) -> None:
@@ -207,7 +207,19 @@ def set_auth_cookie(response: Response, token: str) -> None:
 
 
 def clear_auth_cookie(response: Response) -> None:
-    response.delete_cookie(key=COOKIE_NAME, path="/")
+    response.delete_cookie(
+        key=COOKIE_NAME,
+        path="/",
+        secure=COOKIE_SECURE,
+        httponly=True,
+        samesite=COOKIE_SAMESITE,
+    )
+
+
+def refresh_unauthorized(detail: str) -> JSONResponse:
+    response = JSONResponse(status_code=401, content={"detail": detail})
+    clear_auth_cookie(response)
+    return response
 
 
 def _extract_bearer_token(
@@ -223,142 +235,116 @@ def _extract_bearer_token(
     raise HTTPException(status_code=401, detail="Missing authentication token")
 
 
+def _decode_token(token: str) -> tuple[str, str]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        current_method = payload.get("auth_method") or "password"
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return str(user_id), current_method
+    except JWTError as exc:
+        raise HTTPException(status_code=401, detail="Invalid or expired token") from exc
+
+
 def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False)),
 ):
-    """Extract and verify the current user from JWT."""
     token = _extract_bearer_token(request, credentials)
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except JWTError as exc:
-        raise HTTPException(status_code=401, detail="Invalid or expired token") from exc
+    user_id, current_method = _decode_token(token)
 
-    current_method = payload.get("auth_method") or "password"
-
-    conn = get_db()
-    user = conn.execute("SELECT id, name, email, password_hash FROM users WHERE id = ?", (user_id,)).fetchone()
-
+    user = get_collection("users").find_one({"_id": user_id})
     if user is None:
-        conn.close()
         raise HTTPException(status_code=401, detail="User not found")
 
-    result = dict(user)
-    password_hash = result.pop("password_hash", None)
-    result["current_auth_method"] = current_method
-    result["auth_methods"] = get_auth_methods(conn, result["id"], password_hash, current_method)
-    conn.close()
-    return result
+    response = public_user(user, current_method)
+    return response.model_dump()
+
+
+def create_user(name: str, email: str, password_hash: str, method: str) -> dict:
+    user_id = str(uuid.uuid4())
+    now = utcnow()
+    user = {
+        "_id": user_id,
+        "name": name,
+        "email": email,
+        "password_hash": password_hash,
+        "auth_methods": [method],
+        "created_at": now,
+        "updated_at": now,
+    }
+    get_collection("users").insert_one(user)
+    return user
 
 
 @router.post("/register", response_model=TokenResponse)
 def register(req: RegisterRequest, response: Response):
-    conn = get_db()
-    existing = conn.execute("SELECT id FROM users WHERE email = ?", (req.email,)).fetchone()
-    if existing:
-        conn.close()
+    users = get_collection("users")
+    if users.find_one({"email": req.email}, {"_id": 1}):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
-    user_id = str(uuid.uuid4())
-    password_hash = hash_password(req.password)
+    try:
+        user = create_user(req.name, req.email, hash_password(req.password), "password")
+    except DuplicateKeyError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered") from exc
 
-    conn.execute(
-        "INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-        (user_id, req.name, req.email, password_hash),
-    )
-    link_auth_method(conn, user_id, "password")
-    conn.commit()
-    conn.close()
-
-    token = create_token(user_id, "password")
+    token = create_token(str(user["_id"]), "password")
     set_auth_cookie(response, token)
-    return TokenResponse(
-        access_token=token,
-        user=UserResponse(id=user_id, name=req.name, email=req.email, current_auth_method="password", auth_methods=["password"]),
-    )
+    return TokenResponse(access_token=token, user=public_user(user, "password"))
 
 
 @router.post("/login", response_model=TokenResponse)
 def login(req: LoginRequest, response: Response):
-    conn = get_db()
-    user = conn.execute(
-        "SELECT id, name, email, password_hash FROM users WHERE email = ?",
-        (req.email,),
-    ).fetchone()
-    conn.close()
-
-    if not user or not verify_password(req.password, user["password_hash"]):
+    user = get_collection("users").find_one({"email": req.email})
+    if not user or not verify_password(req.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    conn = get_db()
-    link_auth_method(conn, user["id"], "password")
-    conn.commit()
-    conn.close()
+    link_auth_method(str(user["_id"]), "password")
+    user["auth_methods"] = get_auth_methods(user, "password")
 
-    token = create_token(user["id"], "password")
+    token = create_token(str(user["_id"]), "password")
     set_auth_cookie(response, token)
-    return TokenResponse(
-        access_token=token,
-        user=UserResponse(id=user["id"], name=user["name"], email=user["email"], current_auth_method="password", auth_methods=["password"]),
-    )
+    return TokenResponse(access_token=token, user=public_user(user, "password"))
+
 
 @router.get("/google/login")
 async def google_login(request: Request):
-    """Redirect to Google OAuth consent screen."""
     if not os.getenv("GOOGLE_CLIENT_ID") or not os.getenv("GOOGLE_CLIENT_SECRET"):
         return oauth_error_redirect("Google sign-in is not configured.")
     redirect_uri = oauth_callback_url(request, "google", "google_auth_callback")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
+
 @router.get("/google/callback")
-async def google_auth_callback(request: Request, response: Response):
-    """Handle Google OAuth callback, create user if missing, and issue JWT."""
+async def google_auth_callback(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
-        user_info = token.get('userinfo')
+        user_info = token.get("userinfo")
         if not user_info:
             raise HTTPException(status_code=400, detail="Failed to fetch user info from Google")
-        
-        email = user_info.get("email")
-        name = user_info.get("name")
-        
-        conn = get_db()
-        user = conn.execute("SELECT id, name, email FROM users WHERE email = ?", (email,)).fetchone()
-        
-        if not user:
-            # Create new user for OAuth (give impossible password hash to prevent normal login)
-            user_id = str(uuid.uuid4())
-            impossible_hash = f"!oauth-google-{uuid.uuid4()}"
-            conn.execute(
-                "INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-                (user_id, name, email, impossible_hash),
-            )
-            conn.commit()
-            user = {"id": user_id, "name": name, "email": email}
-        link_auth_method(conn, user["id"], "google")
-        conn.commit()
-        conn.close()
 
-        # Issue our standard JWT
-        jwt_token = create_token(user["id"], "google")
-        
-        # Redirect back to frontend dashboard with token cookie set
+        email = normalize_email(user_info.get("email", ""))
+        name = user_info.get("name") or email.split("@")[0]
+
+        users = get_collection("users")
+        user = users.find_one({"email": email})
+        if not user:
+            user = create_user(name, email, f"!oauth-google-{uuid.uuid4()}", "google")
+        else:
+            link_auth_method(str(user["_id"]), "google")
+
+        jwt_token = create_token(str(user["_id"]), "google")
         frontend_redirect = RedirectResponse(url=f"{FRONTEND_URL}/dashboard")
         set_auth_cookie(frontend_redirect, jwt_token)
         return frontend_redirect
-        
     except Exception:
         logger.exception("google_oauth_failed")
-        # Redirect to login page with error
         return oauth_error_redirect("Google sign-in failed. Please try again.")
 
 
 @router.get("/github/login")
 async def github_login(request: Request):
-    """Redirect to GitHub OAuth consent screen."""
     if not os.getenv("GITHUB_CLIENT_ID") or not os.getenv("GITHUB_CLIENT_SECRET"):
         return oauth_error_redirect("GitHub sign-in is not configured.")
     redirect_uri = oauth_callback_url(request, "github", "github_auth_callback")
@@ -368,7 +354,6 @@ async def github_login(request: Request):
 
 @router.get("/github/callback")
 async def github_auth_callback(request: Request):
-    """Handle GitHub OAuth callback, create user if missing, and issue JWT."""
     try:
         token = await oauth.github.authorize_access_token(request)
         profile_response = await oauth.github.get("user", token=token)
@@ -380,50 +365,35 @@ async def github_auth_callback(request: Request):
             emails = emails_response.json()
             if not isinstance(emails, list):
                 emails = []
-            primary_email = next(
+            email = next(
                 (
                     item.get("email")
                     for item in emails
                     if item.get("primary") and item.get("verified") and item.get("email")
                 ),
                 None,
-            )
-            email = primary_email or next(
-                (
-                    item.get("email")
-                    for item in emails
-                    if item.get("verified") and item.get("email")
-                ),
+            ) or next(
+                (item.get("email") for item in emails if item.get("verified") and item.get("email")),
                 None,
             )
 
         if not email:
             return oauth_error_redirect("GitHub account has no verified email address.")
 
+        email = normalize_email(email)
         name = profile.get("name") or profile.get("login") or email.split("@")[0]
 
-        conn = get_db()
-        user = conn.execute("SELECT id, name, email FROM users WHERE email = ?", (email,)).fetchone()
-
+        users = get_collection("users")
+        user = users.find_one({"email": email})
         if not user:
-            user_id = str(uuid.uuid4())
-            impossible_hash = f"!oauth-github-{uuid.uuid4()}"
-            conn.execute(
-                "INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-                (user_id, name, email, impossible_hash),
-            )
-            conn.commit()
-            user = {"id": user_id, "name": name, "email": email}
+            user = create_user(name, email, f"!oauth-github-{uuid.uuid4()}", "github")
+        else:
+            link_auth_method(str(user["_id"]), "github")
 
-        link_auth_method(conn, user["id"], "github")
-        conn.commit()
-        conn.close()
-
-        jwt_token = create_token(user["id"], "github")
+        jwt_token = create_token(str(user["_id"]), "github")
         frontend_redirect = RedirectResponse(url=f"{FRONTEND_URL}/dashboard")
         set_auth_cookie(frontend_redirect, jwt_token)
         return frontend_redirect
-
     except Exception:
         logger.exception("github_oauth_failed")
         return oauth_error_redirect("GitHub sign-in failed. Please try again.")
@@ -431,7 +401,6 @@ async def github_auth_callback(request: Request):
 
 @router.get("/oauth/github/callback")
 async def github_auth_callback_legacy(request: Request):
-    """Support the older GitHub callback path used by existing OAuth app settings."""
     return await github_auth_callback(request)
 
 
@@ -448,40 +417,19 @@ def logout(response: Response):
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh_token(request: Request, response: Response):
-    """Refresh an expired/valid JWT using the httpOnly cookie.
-    The frontend calls this on every page load to silently renew the session."""
     cookie_token = request.cookies.get(COOKIE_NAME)
     if not cookie_token:
-        raise HTTPException(status_code=401, detail="No refresh token")
+        return refresh_unauthorized("No refresh token")
 
     try:
-        payload = jwt.decode(cookie_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        current_method = payload.get("auth_method") or "password"
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except JWTError as exc:
-        raise HTTPException(status_code=401, detail="Invalid or expired token") from exc
+        user_id, current_method = _decode_token(cookie_token)
+    except HTTPException:
+        return refresh_unauthorized("Invalid or expired token")
 
-    conn = get_db()
-    user = conn.execute("SELECT id, name, email, password_hash FROM users WHERE id = ?", (user_id,)).fetchone()
-
+    user = get_collection("users").find_one({"_id": user_id})
     if user is None:
-        conn.close()
-        raise HTTPException(status_code=401, detail="User not found")
+        return refresh_unauthorized("User not found")
 
-    auth_methods = get_auth_methods(conn, user["id"], user["password_hash"], current_method)
-    conn.close()
-
-    new_token = create_token(user["id"], current_method)
+    new_token = create_token(user_id, current_method)
     set_auth_cookie(response, new_token)
-    return TokenResponse(
-        access_token=new_token,
-        user=UserResponse(
-            id=user["id"],
-            name=user["name"],
-            email=user["email"],
-            current_auth_method=current_method,
-            auth_methods=auth_methods,
-        ),
-    )
+    return TokenResponse(access_token=new_token, user=public_user(user, current_method))
