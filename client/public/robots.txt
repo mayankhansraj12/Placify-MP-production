@@ -16,4 +16,4 @@ Disallow: /coach
 Disallow: /interview
 Disallow: /results
 
-Sitemap: https://placifyai.dev/sitemap.xml
+Sitemap: https://www.placifyai.dev/sitemap.xml

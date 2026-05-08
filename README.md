@@ -112,7 +112,8 @@ Set Render environment variables:
 ```env
 PLACIFY_SECRET_KEY=your-real-secret
 HOST=0.0.0.0
-PORT=10000
+SKIP_MODEL_LOAD=true
+ENABLE_RAG=false
 
 MONGODB_URI=your-mongodb-atlas-uri
 MONGODB_DB_NAME=placify
@@ -136,8 +137,9 @@ AZURE_OPENAI_DEPLOYMENT=gpt-4o-mini
 AZURE_OPENAI_API_VERSION=2024-08-01-preview
 LLM_TIMEOUT_SECONDS=30
 LLM_MAX_OUTPUT_TOKENS=6000
-ENABLE_RAG=true
 ```
+
+Do not add your own `PORT` variable in Render. Render injects `$PORT` automatically for the start command.
 
 Use `COOKIE_SAMESITE=none` when the backend is on `onrender.com` and the frontend is on `placifyai.dev`. If you later put the backend on `api.placifyai.dev`, `COOKIE_SAMESITE=lax` is fine.
 
