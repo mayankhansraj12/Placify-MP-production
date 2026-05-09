@@ -41,7 +41,7 @@ export default function Register() {
         {/* Auth Container */}
         <main className="w-full max-w-[900px] bg-[#111111] flex flex-col md:flex-row rounded-3xl overflow-hidden cinematic-shadow min-h-[640px]">
         {/* Left Side: Brand & Visuals (40%) */}
-        <section className="md:w-2/5 relative flex flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-[#AAAAAA] via-[#555555] to-[#111111]">
+        <section className="hidden md:flex md:w-2/5 relative flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-[#AAAAAA] via-[#555555] to-[#111111]">
           <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay"></div>
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-12 hover:opacity-80 transition-opacity">

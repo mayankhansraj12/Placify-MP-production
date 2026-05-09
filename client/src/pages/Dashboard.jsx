@@ -19,6 +19,9 @@ export default function Dashboard() {
   }, [])
 
   const latest = analyses[0] || null
+  const dashboardSummary = latest
+    ? 'Review your latest analysis, track your readiness signals, and plan your next career move.'
+    : 'Start your first resume analysis to unlock personalized placement insights.'
   const statValues = {
     count: analyses.length,
     strength: latest?.resume_strength || '—',
@@ -45,7 +48,7 @@ export default function Dashboard() {
             Welcome back, {user?.name?.split(' ')[0] || 'User'}
           </h1>
           <p className="text-on-surface-variant dark:text-stone-400 text-sm md:text-lg max-w-2xl mx-auto md:mx-0">
-            Your career trajectory is currently outperforming 84% of your peer group. Ready for your next move?
+            {dashboardSummary}
           </p>
         </header>
 
