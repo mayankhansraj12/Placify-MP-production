@@ -51,7 +51,7 @@ export default function Login() {
         {/* Auth Container */}
         <main className="w-full max-w-[900px] bg-[#111111] flex flex-col md:flex-row rounded-3xl overflow-hidden cinematic-shadow min-h-[640px]">
         {/* Left Side: Brand & Visuals (40%) */}
-        <section className="md:w-2/5 relative flex flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-[#AAAAAA] via-[#555555] to-[#111111]">
+        <section className="hidden md:flex md:w-2/5 relative flex-col justify-between p-10 overflow-hidden bg-gradient-to-br from-[#AAAAAA] via-[#555555] to-[#111111]">
           {/* Decorative Grain/Noise Overlay */}
           <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay"></div>
           {/* Brand Identity */}
@@ -67,18 +67,10 @@ export default function Login() {
           {/* Glass Quote Card */}
           <div className="relative z-10 glass-border bg-white/10 backdrop-blur-2xl p-6 rounded-2xl shadow-lav self-start max-w-[280px]">
             <span className="material-symbols-outlined text-secondary-container mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>format_quote</span>
-            <p className="text-white/90 text-sm leading-relaxed mb-6 font-medium">
-              The placement analytics provided by Placify were the single most important factor in my interview prep strategy.
+            <p className="text-white/90 text-sm leading-relaxed mb-5 font-medium">
+              The future belongs to those who learn more skills and combine them in creative ways.
             </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full border-2 border-primary-container/30 overflow-hidden">
-                <img alt="Arjun Sharma profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXYg4YKJrOFLi6lxqZ3YMvhk8oYQZG0cNWEiSvlexzBYDi5UctIArqK4T7ZxC053T1yJuJ05YCyUW-qI2j65KbWpbvziop3HWOmUEnC0OOlzK7jOp8Pf3g_FshJcYHyQ0juVvS4br3d-b9kEnooxmp_xkDOCUarSt1_psemVFYOvbfk0u-QVBV80r9sn9WmUH2DHrKnlLlqCxctPWONKI0Q5EK01tpxt2ux5NFzGJzypSrU2elO1A9TCMT8UQUK8S5wG5vKQwm0qQ" />
-              </div>
-              <div>
-                <p className="text-white font-bold text-xs">Arjun Sharma</p>
-                <p className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Software Engineer - Google</p>
-              </div>
-            </div>
+            <p className="text-white/60 text-[10px] uppercase tracking-widest font-bold">Robert Greene</p>
           </div>
           {/* Background Abstract Shape */}
           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-primary-container rounded-full mix-blend-screen filter blur-[100px] opacity-40"></div>
