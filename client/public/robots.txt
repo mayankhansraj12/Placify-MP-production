@@ -3,17 +3,8 @@
 User-agent: *
 Allow: /
 
-# Private app and authentication routes should not be crawled.
+# App pages use X-Robots-Tag noindex headers so crawlers can see
+# the deindexing signal instead of keeping URL-only search results.
 Disallow: /api/
-Disallow: /auth/
-Disallow: /auth/callback
-Disallow: /login
-Disallow: /register
-Disallow: /dashboard
-Disallow: /analyze
-Disallow: /enhance
-Disallow: /coach
-Disallow: /interview
-Disallow: /results
 
 Sitemap: https://www.placifyai.dev/sitemap.xml

@@ -310,7 +310,7 @@ export default function Landing() {
           >
             <div className="flex items-center gap-4">
               <img src={logo} alt="Placify AI" className="h-14 w-auto" />
-              <span className="text-3xl font-bold text-[#111111] tracking-tight">Placify AI</span>
+              <h1 className="m-0 text-3xl font-bold text-[#111111] tracking-tight">Placify AI</h1>
             </div>
           </div>
 
